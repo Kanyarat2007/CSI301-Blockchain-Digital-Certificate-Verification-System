@@ -1,100 +1,104 @@
-# SkillTrust Academy — Digital Certificate Verification
+# Blockchain Digital Certificate Verification System
 
-โปรเจกต์ React + Vite + Solidity สำหรับออกและตรวจสอบใบรับรองบน Ethereum Sepolia Testnet ตามโจทย์ที่ 3
+SkillTrust Academy คือระบบออกและตรวจสอบใบรับรองดิจิทัลด้วย **Ethereum Blockchain** โดยพัฒนาเว็บด้วย **React + Vite**, เชื่อมต่อ Wallet ผ่าน **MetaMask**, ติดต่อ Smart Contract ด้วย **ethers.js** และอ่านข้อมูลผ่าน **Infura RPC** บนเครือข่าย **Sepolia Testnet**
 
-## 1) Deploy Smart Contract ด้วย Remix
+## 1. บทบาทผู้ใช้งาน
 
-1. เปิด https://remix.ethereum.org
-2. สร้างไฟล์ `SkillTrustCertificates.sol` แล้วคัดลอกเนื้อหาจาก `contracts/SkillTrustCertificates.sol`
-3. ในแท็บ **Solidity Compiler** เลือก Compiler 0.8.20 หรือใหม่กว่าที่รองรับ `^0.8.20` แล้ว Compile
-4. เปิด MetaMask เลือก **Sepolia Test Network** และเตรียม Sepolia ETH จาก faucet สำหรับ gas
-5. ในแท็บ **Deploy & Run Transactions** เลือก Environment: **Injected Provider - MetaMask**
-6. ตรวจสอบว่า MetaMask เชื่อมกับ Sepolia และ Deploy สัญญา `SkillTrustCertificates` (ไม่ต้องใส่ VALUE)
-7. คัดลอก **Deployed Contract Address** จาก Remix
+ระบบแบ่งประสบการณ์ใช้งานออกเป็น 4 บทบาท 
 
-> ผู้ Deploy จะเป็น `admin` โดยอัตโนมัติ และสามารถสร้างหลักสูตร เพิกถอนใบรับรอง และอนุญาตผู้ออกใบรับรองรายอื่นได้
+### 1.1 Admin — ผู้ดูแลระบบ
 
-## 2) สร้าง Infura Project
+**หน้าที่:** บริหารจัดการหลักสูตร ใบรับรอง และสิทธิ์ของเจ้าหน้าที่ออกใบรับรอง
 
-1. ไปที่ https://developer.metamask.io/ (MetaMask Developer / Infura)
-2. สร้าง API key สำหรับ Ethereum Sepolia
-3. คัดลอก Project ID / API Key สำหรับ RPC
-4. สร้างไฟล์ `.env` ในโฟลเดอร์หลัก โดยคัดลอกจาก `.env.example` และแทนค่าจริง:
+**เมนู:**
 
-```env
-VITE_CONTRACT_ADDRESS=0xYourDeployedContractAddress
-VITE_INFURA_PROJECT_ID=YourInfuraProjectId
-VITE_CHAIN_ID=11155111
-```
+- **Admin Dashboard** — ภาพรวมการจัดการระบบ
+- **จัดการหลักสูตร** — สร้างหลักสูตรใหม่ โดยระบุรหัสหลักสูตร ชื่อ และรายละเอียด; ดูหลักสูตรที่บันทึกไว้
+- **ออกใบรับรอง** — ระบุรหัสใบรับรอง หลักสูตร Wallet ผู้รับ และไฟล์ PDF เพื่อคำนวณ SHA-256 Hash ก่อนบันทึกลง Blockchain
+- **เพิกถอนใบรับรอง** — ระบุรหัสใบรับรองและยืนยันธุรกรรมเพิกถอน
+- **กำหนดสิทธิ์ Issuer** — เพิ่มหรือยกเลิกสิทธิ์ออกใบรับรองของ Wallet อื่น
 
-**สำคัญ:** ตัวแปร `VITE_` จะถูกฝังใน frontend และมองเห็นได้โดยผู้ใช้เว็บไซต์ อย่าใส่ private key, seed phrase หรือ Infura API secret ลงใน `.env` ที่ frontend อ่านได้ ตั้งค่า domain allowlist / API restrictions ในผู้ให้บริการ RPC ตามความเหมาะสม
+**ข้อจำกัด:** การเพิกถอนเป็นการเปลี่ยนสถานะบน Blockchain ไม่ใช่การลบข้อมูลย้อนหลัง และต้องลงนามธุรกรรมผ่าน Wallet
 
-## 3) รัน React Vite
+### 1.2 Issuer — เจ้าหน้าที่ออกใบรับรอง
 
-ต้องมี Node.js 18+ (แนะนำ 20 LTS)
+**หน้าที่:** ออกใบรับรองให้ผู้เรียนตามหลักสูตรที่มีอยู่แล้ว
+
+**เมนู:**
+
+- หน้าหลัก (เข้าผ่านชื่อเว็บไซต์)
+- ตรวจสอบใบรับรอง
+- ใบรับรองของฉัน
+- ออกใบรับรอง
+
+**สิทธิ์:** เลือกหลักสูตรที่ Admin สร้างไว้ กรอกรหัสใบรับรองที่ไม่ซ้ำ ระบุ Wallet ของผู้รับ เลือก PDF และยืนยันธุรกรรมออกใบรับรอง
+
+**ไม่มีสิทธิ์:** สร้างหลักสูตร เพิกถอนใบรับรอง หรือกำหนดสิทธิ์ Issuer รายอื่น ตามการแบ่งสิทธิ์ในหน้าเว็บปัจจุบัน
+
+**การระบุบทบาท:** Admin อนุญาต Wallet ผ่าน `setIssuer(address, true)` และเว็บตรวจสอบผ่าน `issuers(wallet)`; ยกเลิกได้ด้วย `setIssuer(address, false)`
+
+### 1.3 Student — ผู้เรียน / ผู้รับใบรับรอง
+
+**หน้าที่:** ดูใบรับรองที่ออกให้ Wallet ของตนเองและตรวจสอบความถูกต้อง
+
+**เมนู:**
+
+- หน้าหลัก (เข้าผ่านชื่อเว็บไซต์)
+- ตรวจสอบใบรับรอง
+- ใบรับรองของฉัน
+
+### 1.4 Public / Verifier — บุคคลทั่วไป / ผู้ตรวจสอบ
+
+**หน้าที่:** ตรวจสอบว่าใบรับรองมีอยู่จริง ยังใช้งานได้ และไฟล์ PDF ตรงกับหลักฐานบน Blockchain หรือไม่ เช่น ฝ่าย HR หรือบริษัทที่รับสมัครงาน
+
+**เมนู:**
+
+- หน้าหลัก (เข้าผ่านชื่อเว็บไซต์)
+- ตรวจสอบใบรับรอง
+
+**การทำงาน:** ไม่จำเป็นต้องเชื่อมต่อ MetaMask; สามารถกรอกรหัสใบรับรอง หรือเปิดลิงก์จาก QR Code เพื่อตรวจสอบข้อมูลบน Blockchain และเลือกอัปโหลด PDF เพื่อเปรียบเทียบ SHA-256 Hash กับ `documentHash` ที่บันทึกไว้
+
+**ข้อจำกัด:** การตรวจสอบด้วยรหัสอย่างเดียวบอกได้ว่าใบรับรองถูกบันทึกและยังไม่ถูกเพิกถอน แต่ **ยังไม่ยืนยันว่าไฟล์ PDF ที่ถืออยู่ตรงกับต้นฉบับ** จนกว่าจะอัปโหลดไฟล์เพื่อเปรียบเทียบ Hash
+
+## 2. ขั้นตอนการทำงานหลัก
+
+1. **Admin สร้างหลักสูตร** ผ่าน `createCourse(code, title, description)`
+2. **Admin กำหนด Issuer** (ถ้าต้องการให้เจ้าหน้าที่ออกใบรับรอง) ผ่าน `setIssuer(wallet, true)`
+3. **Admin หรือ Issuer ออกใบรับรอง** โดยเลือกรหัสหลักสูตร กรอกรหัสใบรับรอง Wallet ผู้รับ และเลือกไฟล์ PDF
+4. **เว็บคำนวณ SHA-256 Hash** ของ PDF ในเบราว์เซอร์ และเรียก `issueCertificate(id, courseCode, recipient, documentHash)` เพื่อบันทึกหลักฐานลง Blockchain โดยไม่ได้อัปโหลดเนื้อหา PDF ขึ้น Chain
+5. **Student ดูใบรับรองของตนเอง** หลังเชื่อมต่อ MetaMask ผ่าน `getWalletCertificateIds(wallet)` และ `getCertificate(id)`
+6. **Public/Verifier ตรวจสอบ** ผ่านรหัสใบรับรองหรือ QR Code; หากแนบ PDF ระบบจะเปรียบเทียบ Hash เพื่อยืนยันความตรงกันของไฟล์
+7. **Admin เพิกถอนใบรับรอง** ผ่าน `revokeCertificate(id)` เมื่อจำเป็น; ระบบตรวจสอบต้องแสดงสถานะเพิกถอน
+
+## 3. ฟังก์ชัน Smart Contract ที่เกี่ยวข้อง
+
+| ฟังก์ชัน | วัตถุประสงค์ |
+|---|---|
+| `admin()` | อ่าน Address ของ Admin |
+| `issuers(address)` | ตรวจสอบว่า Wallet ได้รับสิทธิ์ Issuer หรือไม่ |
+| `setIssuer(address, bool)` | เพิ่มหรือยกเลิกสิทธิ์ Issuer |
+| `createCourse(string, string, string)` | สร้างหลักสูตร |
+| `getCourses()` | อ่านหลักสูตรทั้งหมด |
+| `issueCertificate(string, string, address, bytes32)` | ออกใบรับรองพร้อม Hash เอกสาร |
+| `getCertificate(string)` | อ่านรายละเอียดใบรับรองตามรหัส |
+| `getWalletCertificateIds(address)` | อ่านรหัสใบรับรองที่ผูกกับ Wallet |
+| `verifyCertificate(string, bytes32)` | ตรวจสอบสถานะและความตรงกันของ Hash |
+| `revokeCertificate(string)` | เพิกถอนใบรับรอง |
+
+## 4. เทคโนโลยีและการตั้งค่า
+
+- **Frontend:** React + Vite
+- **Blockchain:** Ethereum Sepolia Testnet
+- **Smart Contract:** Solidity
+- **Wallet:** MetaMask
+- **Web3 library:** ethers.js v6
+- **RPC:** Infura
+- **Hash:** SHA-256 ผ่าน Web Crypto API
+- **QR Code:** `qrcode.react`
+
+วิธีรัน
 
 ```bash
 npm install
 npm run dev
 ```
-
-เปิด URL ที่ Vite แสดง เช่น http://localhost:5173
-
-## 4) วิธีทดสอบครบทุกฟังก์ชัน
-
-1. เชื่อมต่อ MetaMask ด้วยบัญชีที่ Deploy Smart Contract (Sepolia)
-2. ไปที่ **จัดการหลักสูตร** สร้าง `WEB3-101` / `Blockchain Fundamentals`
-3. ไปที่ **กำหนดสิทธิ์ผู้ออก** เพื่ออนุญาตบัญชีอื่น (ไม่บังคับ เพราะ admin ออกได้อยู่แล้ว)
-4. เตรียม PDF ใบรับรองที่มีชื่อผู้รับและรายละเอียดจริงไว้บนเครื่อง
-5. ไปที่ **ออกใบรับรอง** กรอก `ST-2026-0001`, หลักสูตร, Wallet ของผู้รับ และเลือกไฟล์ PDF แล้วกดยืนยันธุรกรรมใน MetaMask
-6. ไปที่ **ตรวจสอบใบรับรอง** ใส่รหัส `ST-2026-0001` และแนบ PDF เดิมเพื่อยืนยันว่า Hash ตรงกัน
-7. ทดลองแก้ไข PDF แล้วตรวจสอบอีกครั้ง — ระบบควรแจ้งว่า Hash ไม่ตรงกัน
-8. ลองเปิดลิงก์จาก QR Code — จะเข้าสู่หน้าค้นหาด้วยรหัสใบรับรอง (หากยังไม่ได้แนบไฟล์ จะตรวจสอบได้เฉพาะสถานะ ไม่ใช่ความถูกต้องของไฟล์)
-9. เชื่อม MetaMask ด้วย Wallet ของผู้รับ และเปิด **ใบรับรองของฉัน**
-10. กลับมาบัญชี admin และเพิกถอนใบรับรอง แล้วตรวจสอบใหม่ — ต้องแสดงสถานะเพิกถอน
-11. ทดลองใช้ Wallet ที่ไม่มีสิทธิ์เรียก `issueCertificate` / `revokeCertificate` ใน Remix — ธุรกรรมต้อง revert
-12. ทดลองออกใบรับรองด้วยรหัสซ้ำ — ธุรกรรมต้อง revert
-
-## 5) โครงสร้างไฟล์
-
-```text
-skilltrust-certificate/
-├── contracts/
-│   └── SkillTrustCertificates.sol
-├── src/
-│   ├── App.jsx
-│   ├── contract.js
-│   ├── main.jsx
-│   └── style.css
-├── .env.example
-├── .gitignore
-├── index.html
-├── package.json
-└── README.md
-```
-
-## ขอบเขตและข้อควรทราบ
-
-- โค้ดนี้เป็น **MVP สำหรับการศึกษา** ไม่ใช่ระบบที่ผ่าน security audit
-- ใช้ **SHA-256 ของไบต์ไฟล์ PDF** (`crypto.subtle.digest`) และบันทึก `bytes32` บนเชน ไฟล์ PDF ที่มีการเปลี่ยนแม้เพียงหนึ่งไบต์จะให้ Hash ต่างกัน
-- **ไม่อัปโหลด PDF** หรือชื่อผู้รับไปยัง Blockchain; ข้อมูลบนเชนคือ certificate ID, course code, recipient wallet, document hash, timestamp และ revoked status
-- รหัสใบรับรองและรายละเอียดหลักสูตรเป็นข้อมูลสาธารณะ จึงไม่ควรใส่ข้อมูลส่วนบุคคลในช่องเหล่านี้
-- Wallet address อาจเชื่อมโยงกับตัวบุคคลได้ ควรขอความยินยอมและพิจารณาความเป็นส่วนตัวก่อนใช้งานจริง
-- หน้าตรวจสอบด้วยรหัสเพียงอย่างเดียวบอกได้ว่ามีใบรับรองและสถานะอย่างไร แต่ **ไม่พิสูจน์ว่า PDF ที่ผู้ตรวจถืออยู่ตรงกับต้นฉบับ** จนกว่าจะเลือก PDF เพื่อเทียบ Hash
-- QR Code สร้างจาก URL ของเว็บไซต์ที่เปิดอยู่ หากเปิดบน localhost โทรศัพท์เครื่องอื่นจะเข้าถึงไม่ได้ ต้อง deploy frontend ไปยัง URL สาธารณะก่อน
-- ระบบนี้ไม่สร้าง PDF อัตโนมัติ ต้องเตรียม PDF เองก่อนออกใบรับรอง และไม่มี backend สำหรับจัดเก็บเอกสารหรือข้อมูลผู้เรียน
-- Dashboard ของผู้รับอ่านรายการ ID จาก Smart Contract จึงไม่ต้องใช้ฐานข้อมูลแยกสำหรับรายการใบรับรอง
-- หากต้องการให้ผู้อื่นตรวจสอบหลักสูตรและการออกใบรับรองได้อย่างมีความหมาย ควรเพิ่มการยืนยันตัวตนองค์กรที่ออกใบรับรอง และกำหนดนโยบายการเข้าถึงไฟล์ PDF นอกเชน
-
-## หมายเหตุการแก้ Solidity Compiler Error
-
-เวอร์ชันนี้แก้ชนิดข้อมูล `indexed` ของ Events `CourseCreated`, `CertificateIssued` และ `CertificateRevoked` เป็น `bytes32` ให้ตรงกับ `keccak256(bytes(...))` แล้ว หากเคย Deploy เวอร์ชันก่อนหน้า ให้ Deploy เวอร์ชันนี้ใหม่ และใช้ Address ใหม่ใน `.env` การ Verify บน Etherscan ต้องใช้ source และ compiler settings ที่ตรงกับตอน Deploy จริง
-
-## แยกสิทธิ์การใช้งานบนเว็บไซต์
-
-- ผู้เยี่ยมชม: หน้า **ภาพรวมระบบ** และ **ตรวจสอบใบรับรอง** โดยไม่ต้องเชื่อม Wallet
-- ผู้เรียน: เชื่อม Wallet แล้วเปิด **ใบรับรองของฉัน**
-- ผู้ดูแล (Wallet ที่ Deploy): เชื่อม Wallet แล้วเมนู **จัดการหลักสูตร**, **ออกใบรับรอง**, **เพิกถอนใบรับรอง**, **กำหนดสิทธิ์ผู้ออก** จะปรากฏในแถบด้านซ้ายและทางลัดในหน้าแรก
-- Issuer ที่ Admin อนุญาต: เห็นเมนู **ออกใบรับรอง** แต่ไม่สามารถสร้างหลักสูตรหรือเพิกถอน
-
-หากเชื่อม Wallet แล้วไม่เห็นเมนู Admin ให้ตรวจสอบว่าเป็นบัญชีเดียวกับที่ Deploy และ `.env` ชี้ Contract Address บน Sepolia ที่ถูกต้อง
