@@ -17,35 +17,35 @@ export const ABI = [
 ];
 
 // ใช้ไปก่อน ระหว่างรอ influra
-export function readContract() {
-  if (!ethers.isAddress(ADDRESS)) {
-    throw Error("Contract Address ไม่ถูกต้อง");
-  }
-
-  if (!window.ethereum) {
-    throw Error("ไม่พบ MetaMask");
-  }
-
-  const provider = new ethers.BrowserProvider(window.ethereum);
-
-  return new ethers.Contract(ADDRESS, ABI, provider);
-}
-
 // export function readContract() {
-//   if (
-//     !ethers.isAddress(ADDRESS) ||
-//     !INFURA_ID ||
-//     INFURA_ID === "YOUR_INFURA_PROJECT_ID"
-//   )
-//     throw Error(
-//       "กรุณาตั้งค่า VITE_CONTRACT_ADDRESS และ VITE_INFURA_PROJECT_ID ในไฟล์ .env",
-//     );
-//   return new ethers.Contract(
-//     ADDRESS,
-//     ABI,
-//     new ethers.JsonRpcProvider(RPC, CHAIN_ID),
-//   );
+//   if (!ethers.isAddress(ADDRESS)) {
+//     throw Error("Contract Address ไม่ถูกต้อง");
+//   }
+
+//   if (!window.ethereum) {
+//     throw Error("ไม่พบ MetaMask");
+//   }
+
+//   const provider = new ethers.BrowserProvider(window.ethereum);
+
+//   return new ethers.Contract(ADDRESS, ABI, provider);
 // }
+
+export function readContract() {
+  if (
+    !ethers.isAddress(ADDRESS) ||
+    !INFURA_ID ||
+    INFURA_ID === "YOUR_INFURA_PROJECT_ID"
+  )
+    throw Error(
+      "กรุณาตั้งค่า VITE_CONTRACT_ADDRESS และ VITE_INFURA_PROJECT_ID ในไฟล์ .env",
+    );
+  return new ethers.Contract(
+    ADDRESS,
+    ABI,
+    new ethers.JsonRpcProvider(RPC, CHAIN_ID),
+  );
+}
 
 export async function connectWallet() {
   if (!window.ethereum) throw Error("ไม่พบ MetaMask กรุณาติดตั้งส่วนขยายก่อน");
