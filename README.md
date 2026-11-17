@@ -4,9 +4,7 @@ SkillTrust Academy คือระบบออกและตรวจสอบ�
 
 ## 1. บทบาทผู้ใช้งาน
 
-ระบบแบ่งประสบการณ์ใช้งานออกเป็น 4 บทบาท 
-
-### 1.1 Admin — ผู้ดูแลระบบ
+### 1.1 Admin
 
 **หน้าที่:** บริหารจัดการหลักสูตร ใบรับรอง และสิทธิ์ของเจ้าหน้าที่ออกใบรับรอง
 
@@ -26,7 +24,7 @@ SkillTrust Academy คือระบบออกและตรวจสอบ�
 
 **เมนู:**
 
-- หน้าหลัก (เข้าผ่านชื่อเว็บไซต์)
+- หน้าหลัก
 - ตรวจสอบใบรับรอง
 - ใบรับรองของฉัน
 - ออกใบรับรอง
@@ -43,7 +41,7 @@ SkillTrust Academy คือระบบออกและตรวจสอบ�
 
 **เมนู:**
 
-- หน้าหลัก (เข้าผ่านชื่อเว็บไซต์)
+- หน้าหลัก
 - ตรวจสอบใบรับรอง
 - ใบรับรองของฉัน
 
@@ -69,32 +67,6 @@ SkillTrust Academy คือระบบออกและตรวจสอบ�
 5. **Student ดูใบรับรองของตนเอง** หลังเชื่อมต่อ MetaMask ผ่าน `getWalletCertificateIds(wallet)` และ `getCertificate(id)`
 6. **Public/Verifier ตรวจสอบ** ผ่านรหัสใบรับรองหรือ QR Code; หากแนบ PDF ระบบจะเปรียบเทียบ Hash เพื่อยืนยันความตรงกันของไฟล์
 7. **Admin เพิกถอนใบรับรอง** ผ่าน `revokeCertificate(id)` เมื่อจำเป็น; ระบบตรวจสอบต้องแสดงสถานะเพิกถอน
-
-## 3. ฟังก์ชัน Smart Contract ที่เกี่ยวข้อง
-
-| ฟังก์ชัน | วัตถุประสงค์ |
-|---|---|
-| `admin()` | อ่าน Address ของ Admin |
-| `issuers(address)` | ตรวจสอบว่า Wallet ได้รับสิทธิ์ Issuer หรือไม่ |
-| `setIssuer(address, bool)` | เพิ่มหรือยกเลิกสิทธิ์ Issuer |
-| `createCourse(string, string, string)` | สร้างหลักสูตร |
-| `getCourses()` | อ่านหลักสูตรทั้งหมด |
-| `issueCertificate(string, string, address, bytes32)` | ออกใบรับรองพร้อม Hash เอกสาร |
-| `getCertificate(string)` | อ่านรายละเอียดใบรับรองตามรหัส |
-| `getWalletCertificateIds(address)` | อ่านรหัสใบรับรองที่ผูกกับ Wallet |
-| `verifyCertificate(string, bytes32)` | ตรวจสอบสถานะและความตรงกันของ Hash |
-| `revokeCertificate(string)` | เพิกถอนใบรับรอง |
-
-## 4. เทคโนโลยีและการตั้งค่า
-
-- **Frontend:** React + Vite
-- **Blockchain:** Ethereum Sepolia Testnet
-- **Smart Contract:** Solidity
-- **Wallet:** MetaMask
-- **Web3 library:** ethers.js v6
-- **RPC:** Infura
-- **Hash:** SHA-256 ผ่าน Web Crypto API
-- **QR Code:** `qrcode.react`
 
 วิธีรัน
 
